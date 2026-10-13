@@ -1,0 +1,41 @@
+type,target,note
+page,css/styles.css,local page/asset
+page,assets/mark.svg,local page/asset
+anchor,#main,in-page section link
+anchor,#home,in-page section link
+anchor,#mark,in-page section link
+anchor,#fields,in-page section link
+anchor,#approach,in-page section link
+anchor,#overseas,in-page section link
+anchor,#process,in-page section link
+anchor,#faq,in-page section link
+anchor,#book,in-page section link
+anchor,#fields,in-page section link
+anchor,#finder,in-page section link
+anchor,#approach,in-page section link
+anchor,#overseas,in-page section link
+anchor,#process,in-page section link
+anchor,#faq,in-page section link
+anchor,#book,in-page section link
+anchor,#book,in-page section link
+anchor,#finder,in-page section link
+anchor,#,in-page section link
+anchor,#book,in-page section link
+anchor,#mark,in-page section link
+anchor,#book,in-page section link
+anchor,#finder,in-page section link
+anchor,#book,in-page section link
+anchor,#mark,in-page section link
+anchor,#book,in-page section link
+anchor,#home,in-page section link
+anchor,#mark,in-page section link
+anchor,#finder,in-page section link
+anchor,#finder,in-page section link
+anchor,#finder,in-page section link
+anchor,#finder,in-page section link
+anchor,#approach,in-page section link
+anchor,#process,in-page section link
+anchor,#faq,in-page section link
+anchor,#book,in-page section link
+page,privacy.html,local page/asset
+page,terms.html,local page/asset

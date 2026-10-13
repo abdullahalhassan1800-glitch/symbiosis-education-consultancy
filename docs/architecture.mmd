@@ -1,0 +1,47 @@
+%% Architecture — Symbiosis Education Consultancy
+%% Public static site + secure server-side admin backend (Express + Prisma).
+%% Solid = implemented. Dashed = planned for later phases.
+
+flowchart TB
+  subgraph Browser["Browsers"]
+    PUB["Public visitor<br/>index.html · css · js/app.js"]
+    ADM["Admin staff<br/>/admin (server-rendered) + /api"]
+  end
+
+  subgraph Vercel["Vercel / any Node host"]
+    STATIC["Static assets<br/>html · css · js · assets · uploads"]
+    FN["Serverless function<br/>api/index.js → Express app"]
+  end
+
+  subgraph App["Express application (src/)"]
+    MW["Middleware<br/>security headers · body/cookie parse · rate limit · attachUser"]
+    AUTH["Auth routes<br/>login · logout · forgot · reset (src/routes/auth.js)"]
+    ADMINR["Admin pages/APIs<br/>dashboard · audit (src/routes/admin.js)"]
+    LIB["Libraries<br/>password(scrypt) · session · csrf · rbac · ratelimit · audit · render"]
+  end
+
+  subgraph Data["Prisma"]
+    DB[("SQLite (dev/test)<br/>PostgreSQL (production)")]
+    MODELS["User · Role · Permission · Session · AuditLog · LoginAttempt<br/>Course · Institution · Country · FeeRecord · Lead · Appointment<br/>ContactEnquiry · WebsiteContent · Faq · MediaAsset · Setting"]
+  end
+
+  PUB --> STATIC
+  ADM -->|HTTPS + HTTP-only cookie| FN
+  FN --> MW --> AUTH
+  MW --> ADMINR
+  AUTH --> LIB
+  ADMINR --> LIB
+  LIB --> DB
+  DB --- MODELS
+
+  subgraph Later["Later phases"]
+    CAT["Catalogue CRUD (courses/universities/countries/fees)"]
+    CRM["Leads · Appointments · Enquiries"]
+    CMS["Website CMS + public API"]
+    REP["Reports & trend charts"]
+  end
+  ADMINR -.-> CAT
+  ADMINR -.-> CRM
+  ADMINR -.-> CMS
+  ADMINR -.-> REP
+  PUB -.->|live content| CMS

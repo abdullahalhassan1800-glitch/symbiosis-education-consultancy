@@ -1,0 +1,37 @@
+{
+  "name": "symbiosis-education-consultancy",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Symbiosis Education Consultancy — public website + secure admin backend (auth, RBAC, CRM, CMS) with Prisma.",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/local.js",
+    "dev": "node src/local.js",
+    "static": "node serve.js",
+    "test": "node tests/run.js && node tests/backend.test.js",
+    "test:frontend": "node tests/run.js",
+    "test:backend": "node tests/backend.test.js",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force",
+    "db:studio": "prisma studio",
+    "db:seed": "node prisma/seed.js",
+    "db:import": "node scripts/import-dataset.js",
+    "db:demo": "node scripts/seed-demo.js",
+    "admin:create": "node scripts/create-admin.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@prisma/client": "6.12.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "prisma": "6.12.0"
+  },
+  "license": "UNLICENSED"
+}

@@ -1,0 +1,5 @@
+url,status,note
+https://symbiosis-consultancy.vercel.app/robots.txt,404,no robots.txt on reference
+https://symbiosis-consultancy.vercel.app/sitemap.xml,404,no sitemap on reference
+https://symbiosis-consultancy.vercel.app/sitemap_index.xml,404,no sitemap index on reference
+https://symbiosis-consultancy.vercel.app/assets/posts/Ddbbk4Yzqcv.webp,404,case-mismatch probe; correct file is Ddbbk4YzqCv.webp

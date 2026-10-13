@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /privacy.html
+Disallow: /terms.html
+
+Sitemap: https://symbiosis-consultancy.vercel.app/sitemap.xml

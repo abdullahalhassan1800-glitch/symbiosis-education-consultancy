@@ -1,0 +1,21 @@
+{
+  "blocks": [
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "Symbiosis Education Consultancy",
+      "description": "Education consultancy offering admission guidance for medical and professional degrees in India and overseas.",
+      "url": "https://symbiosis-consultancy.vercel.app/",
+      "telephone": "+91 82006 91036",
+      "sameAs": [
+        "https://www.instagram.com/symbiosis.consultancy/"
+      ],
+      "areaServed": [
+        "IN",
+        "GE",
+        "RU",
+        "UA"
+      ]
+    }
+  ]
+}

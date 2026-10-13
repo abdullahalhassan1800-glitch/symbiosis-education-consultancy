@@ -1,0 +1,470 @@
+// ============================================================================
+// Symbiosis Education Consultancy — database schema
+//
+// Provider is chosen by the deployment. It is kept deliberately PORTABLE so the
+// same schema runs on both:
+//   • development / this environment : sqlite      (DATABASE_URL="file:./dev.db")
+//   • production                     : postgresql  (DATABASE_URL="postgresql://…")
+//
+// To switch to PostgreSQL for production: change `provider` below to
+// "postgresql", set DATABASE_URL, delete prisma/migrations and run
+// `npm run db:migrate` in a fresh database. See docs/BACKEND_SETUP.md.
+//
+// Portability rules followed here (so nothing needs rewriting on Postgres):
+//   • no native enums      -> status/kind fields are strings, validated by zod
+//   • no Json columns      -> structured values stored as JSON strings
+//   • no array columns     -> lists stored as JSON strings
+//   • money as INTEGER     -> whole currency units (avoids float rounding)
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // production: "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/* ---------------------------------------------------------------- auth / RBAC */
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  name               String
+  passwordHash       String
+  roleId             String
+  role               Role      @relation(fields: [roleId], references: [id])
+  status             String    @default("active") // active | disabled
+  mustChangePassword Boolean   @default(false)
+  failedLoginCount   Int       @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  sessions        Session[]
+  auditLogs       AuditLog[]
+  passwordResets  PasswordResetToken[]
+  assignedLeads   Lead[]             @relation("LeadAssignee")
+  assignedEnquiries ContactEnquiry[]
+  appointments    Appointment[]
+  contentUpdated  WebsiteContent[]   @relation("ContentUpdatedBy")
+
+  @@index([roleId])
+  @@index([status])
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  key         String           @unique // super_admin | admin | counsellor | content_manager
+  name        String
+  description String?
+  isSystem    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  users       User[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id    String           @id @default(cuid())
+  key   String           @unique // e.g. "courses:write"
+  label String
+  group String
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+}
+
+model Session {
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique // sha-256 of the opaque cookie token
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  csrfToken  String
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ip        String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([ip, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  actorEmail String?
+  action     String // e.g. "auth.login", "course.update"
+  entity     String?
+  entityId   String?
+  meta       String? // JSON string
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+/* ----------------------------------------------------- catalogue / catalogue */
+
+model Country {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  code              String?  @unique // ISO-2
+  overview          String?
+  flagImage         String?
+  admissionGuidance String?
+  livingCostEstimate String?
+  visaGuidance      String?
+  officialLinks     String?  // JSON string[]
+  status            String   @default("draft") // draft | published | archived
+  createdById       String?
+  updatedById       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  institutions Institution[]
+
+  @@index([status])
+}
+
+model Institution {
+  id                 String    @id @default(cuid())
+  name               String
+  slug               String    @unique
+  countryId          String?
+  country            Country?  @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  city               String?
+  officialWebsite    String?
+  logoUrl            String?
+  description        String?
+  programmes         String?
+  recognitionInfo    String?
+  sourceUrls         String? // JSON string[]
+  verificationStatus String    @default("unverified") // verified | unverified | pending
+  lastVerifiedAt     DateTime?
+  status             String    @default("draft")
+  createdById        String?
+  updatedById        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  courses Course[]
+
+  @@unique([name, city])
+  @@index([countryId])
+  @@index([status])
+}
+
+model Course {
+  id                  String    @id @default(cuid())
+  publicId            String?   @unique // human id, e.g. "mbbs-georgia"
+  name                String
+  slug                String    @unique
+  category            String? // field id, e.g. "pharmacy"
+  description         String?
+  institutionId       String?
+  institution         Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+  country             String?
+  city                String?
+  duration            String?
+  eligibility         String?
+  entranceExam        String?
+  tuitionFee          Int?
+  additionalCharges   Int?
+  currency            String    @default("INR")
+  academicYear        String? // "2026-27"
+  applicationDeadline DateTime?
+  officialSourceUrl   String?
+  lastVerifiedAt      DateTime?
+  status              String    @default("draft") // draft | published | archived
+  featured            Boolean   @default(false)
+  createdById         String?
+  updatedById         String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  fees FeeRecord[]
+
+  @@index([status])
+  @@index([category])
+  @@index([institutionId])
+  @@index([featured])
+}
+
+model FeeRecord {
+  id           String    @id @default(cuid())
+  courseId     String
+  course       Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  label        String
+  amount       Int?
+  currency     String    @default("INR")
+  academicYear String?
+  kind         String    @default("tuition") // tuition | additional | other
+  sourceUrl    String?
+  verifiedAt   DateTime?
+  status       String    @default("draft")
+  createdById  String?
+  updatedById  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  changes FeeChange[]
+
+  @@index([courseId])
+  @@index([status])
+}
+
+model FeeChange {
+  id          String    @id @default(cuid())
+  feeRecordId String
+  feeRecord   FeeRecord @relation(fields: [feeRecordId], references: [id], onDelete: Cascade)
+  changedById String?
+  oldAmount   Int?
+  newAmount   Int?
+  oldLabel    String?
+  newLabel    String?
+  note        String?
+  createdAt   DateTime  @default(now())
+
+  @@index([feeRecordId])
+}
+
+/* ------------------------------------------------------------------ CRM */
+
+model Lead {
+  id              String    @id @default(cuid())
+  reference       String    @unique @default(cuid())
+  studentName     String
+  phone           String
+  whatsapp        String?
+  email           String?
+  city            String?
+  qualification   String?
+  courseInterest  String?
+  countryInterest String?
+  neetScore       String?
+  source          String? // website | whatsapp | instagram | referral | other
+  consentStatus   Boolean   @default(false)
+  assignedToId    String?
+  assignedTo      User?     @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  status          String    @default("new") // new|contacted|qualified|counselling_scheduled|follow_up|converted|not_interested|closed
+  notes           String?
+  lastContactAt   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  followUps    LeadNote[]
+  appointments Appointment[]
+
+  @@index([status])
+  @@index([assignedToId])
+  @@index([source])
+  @@index([phone])
+  @@index([createdAt])
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId  String?
+  body      String
+  kind      String   @default("note") // note | call | followup | status_change
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
+
+/* ------------------------------------------------------------ appointments */
+
+model Appointment {
+  id             String    @id @default(cuid())
+  reference      String    @unique
+  studentName    String
+  contactNumber  String
+  email          String?
+  courseInterest String?
+  scheduledAt    DateTime
+  timezone       String    @default("Asia/Kolkata")
+  meetingType    String    @default("call") // call | video | in_person | whatsapp
+  assignedToId   String?
+  assignedTo     User?     @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  leadId         String?
+  lead           Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  status         String    @default("pending") // pending|confirmed|rescheduled|cancelled|completed|no_show
+  notes          String?
+  reminderSentAt DateTime?
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([assignedToId])
+}
+
+model AvailabilitySlot {
+  id        String   @id @default(cuid())
+  weekday   Int // 0=Sunday … 6=Saturday
+  startTime String // "10:00"
+  endTime   String // "10:30"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([weekday, startTime])
+}
+
+/* -------------------------------------------------------------- enquiries */
+
+model ContactEnquiry {
+  id            String   @id @default(cuid())
+  name          String
+  contact       String
+  email         String?
+  subject       String?
+  message       String
+  sourcePage    String?
+  consentStatus Boolean  @default(false)
+  status        String   @default("new") // new | contacted | resolved | spam
+  assignedToId  String?
+  assignedTo    User?    @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  notes         String?
+  ip            String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([assignedToId])
+  @@index([createdAt])
+}
+
+/* ------------------------------------------------------------------- CMS */
+
+model WebsiteContent {
+  id          String    @id @default(cuid())
+  key         String    @unique // e.g. "hero.title"
+  value       String
+  type        String    @default("text") // text | html | url | list
+  status      String    @default("draft") // draft | published
+  updatedById String?
+  updatedBy   User?     @relation("ContentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  revisions ContentRevision[]
+
+  @@index([status])
+}
+
+model ContentRevision {
+  id          String         @id @default(cuid())
+  contentId   String
+  content     WebsiteContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  value       String
+  status      String
+  changedById String?
+  createdAt   DateTime       @default(now())
+
+  @@index([contentId])
+}
+
+model Faq {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String
+  category    String?
+  position    Int      @default(0)
+  status      String   @default("draft") // draft | published
+  createdById String?
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([position])
+}
+
+model Testimonial {
+  id            String    @id @default(cuid())
+  name          String
+  course        String? // programme / course the student took
+  city          String?
+  message       String
+  rating        Int       @default(5) // 1..5
+  avatarUrl     String?
+  consentStatus Boolean   @default(false)
+  position      Int       @default(0)
+  status        String    @default("draft") // draft | published
+  createdById   String?
+  updatedById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@index([status])
+  @@index([position])
+}
+
+model MediaAsset {
+  id           String   @id @default(cuid())
+  filename     String
+  mimeType     String
+  size         Int
+  path         String   @unique
+  altText      String?
+  uploadedById String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}

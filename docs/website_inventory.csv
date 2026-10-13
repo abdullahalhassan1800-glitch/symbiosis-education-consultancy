@@ -1,0 +1,7 @@
+url,http_status,page_title,meta_description,canonical,renders_without_js,extraction_status,extracted_at
+https://symbiosis-consultancy.vercel.app/,200,Symbiosis Education Consultancy — Admissions 2026–27,"Strategic guidance for medical & professional degrees. Admissions in India and overseas — MBBS, AYUSH, Pharmacy, Nursing, Paramedical, Engineering, MBA and more.",https://symbiosis-consultancy.vercel.app/,partial (course lists/stats render from js/data.js),complete,2026-10-14T00:00:00Z
+https://symbiosis-consultancy.vercel.app/robots.txt,404,,,,n/a,not present on reference,2026-10-14T00:00:00Z
+https://symbiosis-consultancy.vercel.app/sitemap.xml,404,,,,n/a,not present on reference,2026-10-14T00:00:00Z
+https://symbiosis-consultancy.vercel.app/js/data.js,200,,,,n/a,content dataset extracted,2026-10-14T00:00:00Z
+https://symbiosis-consultancy.vercel.app/js/main.js,200,,,,n/a,client behaviour extracted,2026-10-14T00:00:00Z
+https://symbiosis-consultancy.vercel.app/css/styles.css,200,,,,n/a,styling reference extracted,2026-10-14T00:00:00Z

@@ -1,0 +1,60 @@
+{
+  "source": "https://symbiosis-consultancy.vercel.app",
+  "extracted_at": "2026-10-14T00:00:00Z",
+  "title": "Symbiosis Education Consultancy — Admissions 2026–27",
+  "meta_description": "Strategic guidance for medical & professional degrees. Admissions in India and overseas — MBBS, AYUSH, Pharmacy, Nursing, Paramedical, Engineering, MBA and more. Book a 1:1 counselling session.",
+  "headings": {
+    "h1": [
+      "Your future. Our guidance."
+    ],
+    "h2": [
+      "Every professional degree, one honest guide",
+      "Confused about college admissions?",
+      "Your dream college. A transparent admission process.",
+      "Real courses. Real fees. No surprises.",
+      "From confusion to convocation.",
+      "Wear the white coat — in India or abroad.",
+      "From first call to confirmed seat in four steps",
+      "Your dreams. Our guidance. A better tomorrow.",
+      "Pick a day. Pick a time. We'll call you.",
+      "Straight answers before you pay anything",
+      "Fresh from our Instagram",
+      "Your dream course is just a call away."
+    ]
+  },
+  "contact": {
+    "name": "Symbiosis Education Consultancy",
+    "legalName": "Symbiosis Education Consultancy",
+    "tagline": "Your dreams · Our guidance · A better tomorrow",
+    "bio": "Strategic guidance for medical & professional degrees. Admissions in India and overseas.",
+    "phone": "8200691036",
+    "phoneDisplay": "+91 82006 91036",
+    "whatsapp": "917284913204",
+    "instagram": "symbiosis.consultancy",
+    "instagramUrl": "https://www.instagram.com/symbiosis.consultancy/",
+    "session": "2026–27"
+  },
+  "counts": {
+    "fields": 10,
+    "courses": 32,
+    "faqs": 7,
+    "updates": 6
+  },
+  "sections": [
+    "Hero",
+    "Trust strip",
+    "Courses (bento)",
+    "CTA band",
+    "Approach",
+    "Fee finder",
+    "Photo band",
+    "Overseas MBBS",
+    "Process",
+    "Brand + stats",
+    "Booking",
+    "FAQ",
+    "Instagram updates",
+    "Final CTA",
+    "Footer"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "forms": [
+    {
+      "id": "bkForm",
+      "purpose": "Book a 1:1 counselling session",
+      "submission": "client-side only — builds a WhatsApp deep link, no server storage",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "name",
+          "type": null,
+          "required": true,
+          "placeholder": "Full name"
+        },
+        {
+          "tag": "input",
+          "name": "phone",
+          "type": null,
+          "required": true,
+          "placeholder": "10-digit number"
+        },
+        {
+          "tag": "select",
+          "name": "qual",
+          "type": null,
+          "required": true,
+          "placeholder": null
+        },
+        {
+          "tag": "select",
+          "name": "course",
+          "type": null,
+          "required": true,
+          "placeholder": null
+        },
+        {
+          "tag": "input",
+          "name": "neet",
+          "type": null,
+          "required": false,
+          "placeholder": "e.g. 410"
+        },
+        {
+          "tag": "input",
+          "name": "city",
+          "type": null,
+          "required": false,
+          "placeholder": "Your city"
+        },
+        {
+          "tag": "input",
+          "name": "mode",
+          "type": "radio",
+          "required": false,
+          "placeholder": null
+        },
+        {
+          "tag": "input",
+          "name": "mode",
+          "type": "radio",
+          "required": false,
+          "placeholder": null
+        },
+        {
+          "tag": "input",
+          "name": "mode",
+          "type": "radio",
+          "required": false,
+          "placeholder": null
+        },
+        {
+          "tag": "textarea",
+          "name": "note",
+          "type": null,
+          "required": false,
+          "placeholder": "Budget, preferred state, questions…"
+        }
+      ]
+    }
+  ]
+}
