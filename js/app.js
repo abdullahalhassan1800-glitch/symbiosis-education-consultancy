@@ -433,7 +433,7 @@
       if (!/^[+\d][\d ]{6,15}$/.test(String(data.contact || '').trim())) bad.push('contact');
       bad.forEach(function (n) { if (form.elements[n]) form.elements[n].classList.add('bad'); });
       if (bad.length) { err.textContent = 'Please enter your name and a valid phone number.'; if (form.elements[bad[0]]) form.elements[bad[0]].focus(); return; }
-      var done = function () { $('#popFields').hidden = true; $('#popSummary').hidden = false; };
+      var done = function () { close(); };
       if (location.protocol === 'file:' || !window.fetch) { done(); return; }
       fetch('/api/public/leads', {
         method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' },
