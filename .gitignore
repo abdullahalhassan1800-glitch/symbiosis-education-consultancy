@@ -6,6 +6,12 @@ node_modules/
 .env.*
 !.env.example
 
+# Google service-account keys (never commit)
+service-account*.json
+*service-account*.json
+secrets/
+google-service-account*.json
+
 # database (local SQLite)
 prisma/*.db
 prisma/*.db-journal

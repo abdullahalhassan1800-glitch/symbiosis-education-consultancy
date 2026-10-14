@@ -18,6 +18,25 @@
   var inr = function (n) { return '₹' + Number(n).toLocaleString('en-IN'); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
 
+  /* ----------------------------------------------------- Google Sheets push
+     Fallback for static hosting (e.g. GitHub Pages), where the backend API is
+     unavailable. New leads/enquiries/bookings are sent straight to the public
+     Google-Sheets web app so they still reach the spreadsheet. Fire-and-forget
+     (mode:"no-cors"), so it never blocks the visitor and never throws. */
+  var SHEETS_PUSH_URL = 'https://script.google.com/macros/s/AKfycbzqqyelQoaxKFNtTSdYHjinRYwzXAmbz4vU_tZtNiDGYMjrOwRuRmTMD9VhmO0567Ww/exec';
+  var SHEET_BY_KIND = { lead: 'Leads', appointment: 'Appointments', enquiry: 'Enquiries' };
+  function pushSheets(kind, record) {
+    if (!SHEETS_PUSH_URL || !window.fetch) return;
+    try {
+      fetch(SHEETS_PUSH_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'content-type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify({ kind: kind, sheet: SHEET_BY_KIND[kind], record: record, sentAt: new Date().toISOString() })
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   /* --------------------------------------------------------------- icons */
   var ICONS = {
     compass: '<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/>',
@@ -343,7 +362,14 @@
             notes: [data.qual && 'Qualification: ' + data.qual, data.city && 'City: ' + data.city, data.neet && 'NEET: ' + data.neet, data.note && data.note.trim()].filter(Boolean).join(' · ').slice(0, 2000),
             consentStatus: '1'
           };
-          fetch('/api/public/appointments', { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify(payload) }).catch(function () {});
+          var apptRec = {
+            reference: ref, studentName: payload.studentName, contactNumber: payload.contactNumber,
+            email: payload.email, courseInterest: payload.courseInterest, scheduledAt: payload.scheduledAt,
+            timezone: payload.timezone, meetingType: payload.meetingType, status: 'pending'
+          };
+          fetch('/api/public/appointments', { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify(payload) })
+            .then(function (r) { if (!r.ok) pushSheets('appointment', apptRec); })
+            .catch(function () { pushSheets('appointment', apptRec); });
         }
       } catch (e) {}
 
@@ -388,16 +414,23 @@
       bad.forEach(function (n) { if (form.elements[n]) form.elements[n].classList.add('bad'); });
       if (bad.length) { err.textContent = 'Please fill in the highlighted fields.'; if (form.elements[bad[0]]) form.elements[bad[0]].focus(); return; }
       var done = function () { $('#enqFields').hidden = true; $('#enqSummary').hidden = false; };
-      if (location.protocol === 'file:' || !window.fetch) { done(); return; }
+      var rec = {
+        id: '', name: String(data.name || '').trim(), contact: String(data.contact || '').trim(),
+        email: String(data.email || '').trim(), subject: '', message: String(data.message || '').trim(),
+        sourcePage: 'website#contact', status: 'new', createdAt: new Date().toISOString()
+      };
+      if (location.protocol === 'file:' || !window.fetch) { pushSheets('enquiry', rec); done(); return; }
       fetch('/api/public/enquiries', {
         method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' },
         body: JSON.stringify({ name: data.name, contact: data.contact, email: data.email, message: data.message, consentStatus: data.consentStatus ? '1' : '', website: data.website || '', sourcePage: 'website#contact' })
       }).then(function (r) {
-        if (r.ok) return done();
-        return r.json().then(function (j) { throw new Error((j.error && j.error.message) || 'Could not send your message.'); });
-      }).catch(function (e2) {
-        err.textContent = (e2 && e2.message) || 'Could not send your message. Please try WhatsApp instead.';
-      });
+        return r.text().then(function (t) { return { ok: r.ok, text: t }; });
+      }).then(function (res) {
+        if (res.ok) return done();
+        var j = null; try { j = JSON.parse(res.text); } catch (e) {}
+        if (j && j.error) { err.textContent = j.error.message || 'Could not send your message.'; return; }
+        pushSheets('enquiry', rec); done();
+      }).catch(function () { pushSheets('enquiry', rec); done(); });
     });
   }
 
@@ -434,16 +467,22 @@
       bad.forEach(function (n) { if (form.elements[n]) form.elements[n].classList.add('bad'); });
       if (bad.length) { err.textContent = 'Please enter your name and a valid phone number.'; if (form.elements[bad[0]]) form.elements[bad[0]].focus(); return; }
       var done = function () { close(); };
-      if (location.protocol === 'file:' || !window.fetch) { done(); return; }
+      var rec = {
+        reference: '', studentName: String(data.name || '').trim(), phone: String(data.contact || '').trim(),
+        email: '', courseInterest: data.course || '', source: 'website', status: 'new', createdAt: new Date().toISOString()
+      };
+      if (location.protocol === 'file:' || !window.fetch) { pushSheets('lead', rec); done(); return; }
       fetch('/api/public/leads', {
         method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' },
         body: JSON.stringify({ studentName: data.name, phone: data.contact, courseInterest: data.course, consentStatus: data.consentStatus ? '1' : '', website: data.website || '' })
       }).then(function (r) {
-        if (r.ok) return done();
-        return r.json().then(function (j) { throw new Error((j.error && j.error.message) || 'Could not send your details.'); });
-      }).catch(function (e2) {
-        err.textContent = (e2 && e2.message) || 'Could not send your details. Please try WhatsApp instead.';
-      });
+        return r.text().then(function (t) { return { ok: r.ok, text: t }; });
+      }).then(function (res) {
+        if (res.ok) return done();
+        var j = null; try { j = JSON.parse(res.text); } catch (e) {}
+        if (j && j.error) { err.textContent = j.error.message || 'Could not send your details.'; return; }
+        pushSheets('lead', rec); done();
+      }).catch(function () { pushSheets('lead', rec); done(); });
     });
 
     try { if (sessionStorage.getItem('sym_popup_seen')) return; } catch (e) {}

@@ -49,7 +49,15 @@ const config = {
     // Shared key for the read-only records API (Google Sheets sync, etc.).
     sheetsKey: env.SHEETS_SYNC_KEY || '',
     // Apps Script web-app URL that receives new CRM records (push webhook).
+    // Legacy push mode; used only when the Sheets-API settings below are unset.
     sheetsWebhookUrl: env.SHEETS_WEBHOOK_URL || '',
+    // Preferred push mode: Google Sheets API v4 with a service account.
+    // GOOGLE_SHEETS_ID: the spreadsheet id (from its URL).
+    // GOOGLE_SERVICE_ACCOUNT_JSON: the service-account key (raw JSON text, or a
+    // path to the downloaded .json file). GOOGLE_SERVICE_ACCOUNT_FILE is an
+    // alias for a file path.
+    sheetsSpreadsheetId: env.GOOGLE_SHEETS_ID || '',
+    sheetsServiceAccount: env.GOOGLE_SERVICE_ACCOUNT_JSON || env.GOOGLE_SERVICE_ACCOUNT_FILE || '',
   },
 
   uploadsDir: path.resolve(__dirname, '..', 'uploads'),
