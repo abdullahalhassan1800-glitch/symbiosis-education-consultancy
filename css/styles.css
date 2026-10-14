@@ -185,6 +185,7 @@ body:not(.intro-pending) .hero-inner>*:nth-child(5):not(.hero-title){transition-
 .svc span{font-size:.84rem;color:rgba(255,255,255,.7)}
 .hero-marquee{position:relative;z-index:2;margin-top:2.6rem;border-top:1px solid var(--line-dark);padding:1.1rem 0;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
 .marquee-track{display:flex;gap:2.4rem;width:max-content;animation:slide 30s linear infinite;font-size:.9rem;color:rgba(255,255,255,.72);font-weight:500}
+.marquee-track .dup{display:contents}
 .marquee-track span{white-space:nowrap}
 .marquee-track span::before{content:"◆";color:var(--gold-2);margin-right:.6rem;font-size:.6rem}
 @keyframes slide{to{transform:translateX(-50%)}}
@@ -357,6 +358,7 @@ body:not(.intro-pending) .hero-inner>*:nth-child(5):not(.hero-title){transition-
 .booking-wrap{position:relative}
 .book-person{position:absolute;left:-1rem;bottom:-1rem;width:150px;z-index:3;pointer-events:none}
 .booking{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.5rem,3vw,2.6rem);background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:clamp(1.3rem,3vw,2.2rem);box-shadow:var(--shadow-md)}
+.booking>*{min-width:0}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
 .cal-head h3{font-size:1.15rem}
 .cal-nav{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:1.2rem;cursor:pointer;color:var(--navy)}
@@ -382,8 +384,10 @@ body:not(.intro-pending) .hero-inner>*:nth-child(5):not(.hero-title){transition-
 .bk-summary b{display:block;font-size:.95rem}
 .bk-summary small{color:var(--muted);font-size:.75rem}
 .field2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
-.bk-form label,.field2 label{display:flex;flex-direction:column;gap:.3rem;font-size:.84rem;font-weight:600}
-.bk-form input,.bk-form select,.bk-form textarea{border:1.5px solid var(--line);border-radius:11px;padding:.6rem .75rem;font:inherit;background:#fff;font-weight:500}
+.field2>*{min-width:0}
+.bk-form label,.field2 label{display:flex;flex-direction:column;gap:.3rem;font-size:.84rem;font-weight:600;min-width:0}
+.bk-form input,.bk-form select,.bk-form textarea{border:1.5px solid var(--line);border-radius:11px;padding:.6rem .75rem;font:inherit;background:#fff;font-weight:500;min-width:0;max-width:100%}
+.bk-form textarea{width:100%}
 .bk-form input:focus,.bk-form select:focus,.bk-form textarea:focus{border-color:var(--blue);outline:none}
 .bk-form input.bad,.bk-form select.bad{border-color:#d64545;background:#fdf1f1}
 .opt{color:var(--muted);font-weight:400}

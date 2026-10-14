@@ -33,3 +33,7 @@ coverage/
 
 .vercel
 .env*
+
+# agent tooling (opencode skills)
+.agents/
+skills-lock.json
