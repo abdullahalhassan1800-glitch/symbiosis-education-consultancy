@@ -20,6 +20,9 @@ prisma/dev.db*
 # generated production schema (built from prisma/schema.prisma)
 prisma/schema.postgres.prisma
 
+# generated static output for Vercel (staged from the repo root)
+/public/
+
 # uploads (user media)
 uploads/
 
@@ -27,3 +30,6 @@ uploads/
 coverage/
 *.log
 .DS_Store
+
+.vercel
+.env*

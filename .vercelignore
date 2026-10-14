@@ -1,0 +1,15 @@
+# Keep secrets, local databases, tests and docs out of Vercel deployments.
+.env
+.env.*
+!.env.example
+prisma/*.db
+prisma/dev.db*
+prisma/test.db*
+uploads
+.agents
+.vercel
+docs
+tests
+coverage
+*.log
+.github
