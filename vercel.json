@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "regions": ["sin1"],
   "buildCommand": "node scripts/prepare-prod-schema.js && npx prisma generate --schema prisma/schema.postgres.prisma && node scripts/copy-public.js",
   "installCommand": "npm install",
   "outputDirectory": "public",
