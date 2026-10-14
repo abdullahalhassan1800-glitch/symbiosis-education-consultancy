@@ -14,6 +14,8 @@
     "test:backend": "node tests/backend.test.js",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
+    "db:push:prod": "node scripts/prepare-prod-schema.js && prisma db push --schema prisma/schema.postgres.prisma",
+    "prisma:gen:prod": "node scripts/prepare-prod-schema.js && prisma generate --schema prisma/schema.postgres.prisma",
     "db:reset": "prisma migrate reset --force",
     "db:studio": "prisma studio",
     "db:seed": "node prisma/seed.js",

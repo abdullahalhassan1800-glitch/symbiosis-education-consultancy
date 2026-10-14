@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "prisma generate",
+  "buildCommand": "node scripts/prepare-prod-schema.js && prisma generate --schema prisma/schema.postgres.prisma",
   "installCommand": "npm install",
   "functions": {
     "api/index.js": { "maxDuration": 30 }

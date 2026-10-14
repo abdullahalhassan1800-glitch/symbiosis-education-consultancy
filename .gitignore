@@ -17,6 +17,9 @@ prisma/*.db
 prisma/*.db-journal
 prisma/dev.db*
 
+# generated production schema (built from prisma/schema.prisma)
+prisma/schema.postgres.prisma
+
 # uploads (user media)
 uploads/
 
