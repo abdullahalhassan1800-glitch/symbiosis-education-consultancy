@@ -477,6 +477,9 @@ body:not(.intro-pending) .hero-inner>*:nth-child(5):not(.hero-title){transition-
   .book-person{width:110px}
   .ties{grid-template-columns:1fr}
   .ciu-split,.ticks{grid-template-columns:1fr}
+  .hero-photo{height:min(100%,480px);bottom:auto;overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent);mask-image:linear-gradient(180deg,#000 60%,transparent)}
+  .hero-photo img{object-position:center 42%}
 }
 @media (max-width:560px){
   body{font-size:16px}
